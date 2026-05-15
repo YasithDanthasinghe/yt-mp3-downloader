@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>YT → MP3 Downloader</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #0f0f0f; color: #eee; min-height: 100vh; padding: 40px 20px; }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { color: #ff4444; margin-bottom: 8px; font-size: 2rem; }
+    p.sub { color: #888; margin-bottom: 30px; }
+    .input-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    input[type="text"] { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #1a1a1a; color: #fff; font-size: 1rem; }
+    select { padding: 12px; border-radius: 8px; border: 1px solid #333; background: #1a1a1a; color: #fff; }
+    button { padding: 12px 20px; border-radius: 8px; border: none; background: #ff4444; color: #fff; cursor: pointer; font-size: 1rem; font-weight: bold; }
+    button:hover { background: #cc0000; }
+    button:disabled { background: #555; cursor: not-allowed; }
+    #info-box { background: #1a1a1a; border-radius: 10px; padding: 20px; margin-bottom: 20px; display: none; }
+    #info-box h2 { margin-bottom: 14px; font-size: 1.1rem; color: #ccc; }
+    .track { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #2a2a2a; }
+    .track:last-child { border-bottom: none; }
+    .track-title { font-size: 0.9rem; flex: 1; margin-right: 10px; }
+    .dl-btn { padding: 7px 14px; font-size: 0.85rem; background: #1db954; border-radius: 6px; border: none; color: #fff; cursor: pointer; white-space: nowrap; }
+    .dl-btn:hover { background: #17a348; }
+    .dl-btn:disabled { background: #555; cursor: not-allowed; }
+    #status { margin-top: 16px; color: #aaa; font-size: 0.9rem; text-align: center; }
+    .dl-all-row { margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🎵 YT → MP3</h1>
+  <p class="sub">Paste a YouTube video or playlist URL to download as MP3</p>
+
+  <div class="input-row">
+    <input type="text" id="url-input" placeholder="https://www.youtube.com/watch?v=... or playlist URL" />
+    <select id="quality">
+      <option value="128">128 kbps</option>
+      <option value="192" selected>192 kbps</option>
+      <option value="320">320 kbps</option>
+    </select>
+    <button id="fetch-btn" onclick="fetchInfo()">Fetch</button>
+  </div>
+
+  <div id="info-box">
+    <h2 id="playlist-title"></h2>
+    <div class="dl-all-row">
+      <button id="dl-all-btn" onclick="downloadAll()" style="display:none; background:#ff4444;">
+        ⬇ Download All
+      </button>
+    </div>
+    <div id="track-list"></div>
+  </div>
+
+  <div id="status"></div>
+</div>
+
+<script>
+  let tracks = [];
+
+  async function fetchInfo() {
+    const url = document.getElementById("url-input").value.trim();
+    if (!url) return alert("Please enter a URL");
+    setStatus("⏳ Fetching info...");
+    document.getElementById("fetch-btn").disabled = true;
+
+    try {
+      const res = await fetch(`/info?url=${encodeURIComponent(url)}`);
+      const data = await res.json();
+
+      if (data.error) { setStatus("❌ Error: " + data.error); return; }
+
+      const infoBox = document.getElementById("info-box");
+      infoBox.style.display = "block";
+      document.getElementById("playlist-title").textContent = data.title || "Ready to Download";
+
+      const trackList = document.getElementById("track-list");
+      trackList.innerHTML = "";
+      tracks = [];
+
+      if (data.type === "playlist") {
+        document.getElementById("dl-all-btn").style.display = "inline-block";
+        tracks = data.tracks;
+        data.tracks.forEach((t, i) => {
+          trackList.innerHTML += `
+            <div class="track" id="track-${i}">
+              <span class="track-title">${i+1}. ${t.title}</span>
+              <button class="dl-btn" id="btn-${i}" onclick="downloadTrack(${i})">⬇ Download</button>
+            </div>`;
+        });
+        setStatus(`✅ Found ${data.tracks.length} tracks`);
+      } else {
+        document.getElementById("dl-all-btn").style.display = "none";
+        tracks = [{ title: data.title, id: data.id }];
+        trackList.innerHTML = `
+          <div class="track">
+            <span class="track-title">${data.title}</span>
+            <button class="dl-btn" onclick="downloadTrack(0)">⬇ Download</button>
+          </div>`;
+        setStatus("✅ Video found");
+      }
+    } catch(e) {
+      setStatus("❌ Failed to fetch: " + e.message);
+    } finally {
+      document.getElementById("fetch-btn").disabled = false;
+    }
+  }
+
+  async function downloadTrack(index) {
+    const url = document.getElementById("url-input").value.trim();
+    const quality = document.getElementById("quality").value;
+    const btn = document.getElementById(`btn-${index}`);
+    const isPlaylist = tracks.length > 1;
+
+    let downloadUrl;
+    if (isPlaylist) {
+      downloadUrl = `https://www.youtube.com/watch?v=${tracks[index].id}`;
+    } else {
+      downloadUrl = url;
+    }
+
+    if (btn) { btn.disabled = true; btn.textContent = "⏳ Downloading..."; }
+    setStatus(`⏳ Downloading: ${tracks[index].title}`);
+
+    try {
+      const res = await fetch(`/download?url=${encodeURIComponent(downloadUrl)}&quality=${quality}`);
+      if (!res.ok) { throw new Error("Server error"); }
+      const blob = await res.blob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${tracks[index].title}.mp3`;
+      a.click();
+      if (btn) { btn.textContent = "✅ Done"; }
+      setStatus(`✅ Downloaded: ${tracks[index].title}`);
+    } catch(e) {
+      if (btn) { btn.textContent = "❌ Failed"; }
+      setStatus("❌ Error: " + e.message);
+    }
+  }
+
+  async function downloadAll() {
+    for (let i = 0; i < tracks.length; i++) {
+      await downloadTrack(i);
+      await new Promise(r => setTimeout(r, 1500)); // small gap between downloads
+    }
+    setStatus("✅ All downloads complete!");
+  }
+
+  function setStatus(msg) {
+    document.getElementById("status").textContent = msg;
+  }
+</script>
+</body>
+</html>

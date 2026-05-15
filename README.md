@@ -1,4 +1,4 @@
-🎵 YT-MP3 Downloader
+# 🎵 YT-MP3 Downloader
 
 A simple, clean web app that runs on your local machine — paste a YouTube video or playlist URL and download MP3 files with full metadata and cover art embedded.
 
@@ -7,45 +7,55 @@ A simple, clean web app that runs on your local machine — paste a YouTube vide
 ![yt-dlp](https://img.shields.io/badge/yt--dlp-latest-red)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-Features
+---
 
-🎵 Download single YouTube videos as MP3
-📋 Download full playlists at once
-🖼️ Embeds cover art (thumbnail) into MP3
-📝 Embeds metadata (title, artist, album, year)
-🎚️ Choose audio quality: 128 / 192 / 320 kbps
-🖥️ Runs in your browser — no complicated setup
-💻 Can be built as a clickable `.exe` (Windows)
+## ✨ Features
 
-Preview
+- 🎵 Download single YouTube videos as MP3
+- 📋 Download full playlists at once
+- 🖼️ Embeds cover art (thumbnail) into MP3
+- 📝 Embeds metadata (title, artist, album, year)
+- 🎚️ Choose audio quality: 128 / 192 / 320 kbps
+- 🖥️ Runs in your browser — no complicated setup
+- 💻 Can be built as a clickable `.exe` (Windows)
 
+---
 
-Requirements
+## 📸 Preview
+
+```
+Paste URL → Click Fetch → See track list → Download
+```
+
+---
+
+## 🛠️ Requirements
 
 Make sure these are installed on your system:
 
-Tools Should Download 
-
+| Tool | Download |
+|---|---|
 | Python 3.10+ | https://www.python.org/downloads/ |
 | ffmpeg | https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip |
 
+---
 
-Installation & Setup
+## 🚀 Installation & Setup
 
-1. Clone the Repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/yt-mp3-downloader.git
 cd yt-mp3-downloader
 ```
 
-2. Install Python Packages
+### 2. Install Python Packages
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Install ffmpeg (Windows)
+### 3. Install ffmpeg (Windows)
 
 1. Download from 👉 https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
 2. Extract and rename the folder to `ffmpeg`
@@ -58,7 +68,7 @@ ffmpeg -version
 
 ---
 
-▶️ Running the App
+## ▶️ Running the App
 
 ```bash
 python launcher.py
@@ -68,21 +78,21 @@ Your browser will automatically open at `http://127.0.0.1:8000`
 
 ---
 
-📦 Building as a Windows .exe
+## 📦 Building as a Windows .exe
 
-1. Install PyInstaller
+### 1. Install PyInstaller
 
 ```bash
 pip install pyinstaller
 ```
 
-2. Build the executable
+### 2. Build the executable
 
 ```bash
 pyinstaller --onefile --name "YT-MP3-Downloader" launcher.py
 ```
 
-3. Copy the templates folder
+### 3. Copy the templates folder
 
 After building, copy the `templates` folder into the `dist` folder:
 
@@ -93,13 +103,13 @@ dist/
       └── index.html
 ```
 
-4. Run
+### 4. Run
 
 Double-click `YT-MP3-Downloader.exe` — browser opens automatically! 🎉
 
 ---
 
-📁 Project Structure
+## 📁 Project Structure
 
 ```
 yt-mp3-downloader/
@@ -114,7 +124,7 @@ yt-mp3-downloader/
 
 ---
 
-📋 How to Use
+## 📋 How to Use
 
 1. Paste a YouTube **video URL** or **playlist URL**
 2. Click **Fetch**
@@ -124,7 +134,7 @@ yt-mp3-downloader/
 
 ---
 
-⚙️ Tech Stack
+## ⚙️ Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -137,7 +147,7 @@ yt-mp3-downloader/
 
 ---
 
-⚠️ Disclaimer
+## ⚠️ Disclaimer
 
 This tool is intended for **personal use only**. Downloading YouTube content may violate [YouTube's Terms of Service](https://www.youtube.com/t/terms). Only download content you own or that is licensed for free download.
 
